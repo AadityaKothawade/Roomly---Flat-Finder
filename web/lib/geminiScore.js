@@ -24,22 +24,35 @@ Respond with ONLY valid JSON in this exact shape, no markdown fences, no extra t
 { "score": number, "explanation": string }`;
 }
 
-// Calls Gemini to score a tenant/listing pair. On any failure (network,
-// timeout, malformed JSON, out-of-range score) it falls back to a
-// deterministic rule-based score so the app never breaks.
 export async function getCompatibilityScore(listing, tenantProfile) {
   try {
-    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+    if (!process.env.GEMINI_API_KEY) {
+      console.error("GEMINI_API_KEY is not set");
+      throw new Error("Missing Gemini API key");
+    }
+
+    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
     const prompt = buildPrompt(listing, tenantProfile);
 
-    const result = await Promise.race([
-      model.generateContent(prompt),
-      new Promise((_, reject) => setTimeout(() => reject(new Error("LLM timeout")), 8000)),
-    ]);
+    let result;
+    try {
+      result = await model.generateContent(prompt);
+    } catch (apiError) {
+      console.error("Gemini API error:", apiError);
+      throw new Error(`Gemini API error: ${apiError.message || "Unknown"}`);
+    }
 
-    const text = result.response.text().trim();
-    const cleaned = text.replace(/^```json\s*|^```\s*|```$/g, "").trim();
-    const parsed = JSON.parse(cleaned);
+    const response = await result.response;
+    const text = response.text();
+    const cleaned = text.replace(/```(?:json)?\n?/g, "").trim();
+
+    let parsed;
+    try {
+      parsed = JSON.parse(cleaned);
+    } catch (parseError) {
+      console.error("Invalid JSON from Gemini:", cleaned);
+      throw new Error("Invalid JSON response from AI");
+    }
 
     if (
       typeof parsed.score !== "number" ||
@@ -47,7 +60,7 @@ export async function getCompatibilityScore(listing, tenantProfile) {
       parsed.score > 100 ||
       typeof parsed.explanation !== "string"
     ) {
-      throw new Error("Malformed LLM response");
+      throw new Error("Malformed LLM response: " + cleaned);
     }
 
     return {
