@@ -1,8 +1,8 @@
 import { currentDbUser } from "@/lib/currentDbUser";
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
+import { sendTopMatchesEmail } from "@/lib/email";
+import { getTopMatchesForTenant } from "@/lib/topMatches";
 
-// GET: fetch the current tenant's profile, if one exists — used to prefill
-// the profile form so returning users see (and can edit) what they saved.
 export async function GET() {
   const dbUser = await currentDbUser();
   if (!dbUser || dbUser.role !== "tenant") {
@@ -15,11 +15,9 @@ export async function GET() {
     .eq("tenant_id", dbUser.id)
     .single();
 
-  // No profile yet is a normal state, not an error — return null, not 404.
   return Response.json(data || null);
 }
 
-// POST: create or update the tenant's profile (upsert on tenant_id).
 export async function POST(req) {
   const dbUser = await currentDbUser();
   if (!dbUser || dbUser.role !== "tenant") {
@@ -44,13 +42,27 @@ export async function POST(req) {
   if (error) return new Response(error.message, { status: 500 });
 
   // Preferences changed, so any previously cached scores are stale — clear
-  // them so browsing recomputes fresh scores against the new preferences.
+  // them so both browsing and the top-matches email below use fresh scores.
   await supabaseAdmin.from("compatibility_scores").delete().eq("tenant_id", dbUser.id);
+
+  // Compute top 3 matches against currently open listings and email them.
+  // Wrapped so a scoring/email failure never breaks the profile save itself.
+  try {
+    const topMatches = await getTopMatchesForTenant(dbUser.id, data);
+    if (dbUser.email) {
+      await sendTopMatchesEmail({
+        tenantEmail: dbUser.email,
+        tenantName: dbUser.name,
+        matches: topMatches,
+      });
+    }
+  } catch (err) {
+    console.error("Failed to compute/send top matches:", err.message);
+  }
 
   return Response.json(data);
 }
 
-// DELETE: clear the tenant's saved preferences entirely.
 export async function DELETE() {
   const dbUser = await currentDbUser();
   if (!dbUser || dbUser.role !== "tenant") {
