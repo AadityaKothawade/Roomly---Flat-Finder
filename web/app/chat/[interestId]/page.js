@@ -1,0 +1,127 @@
+"use client";
+
+import { useEffect, useRef, useState } from "react";
+import { useAuth } from "@clerk/nextjs";
+import { io } from "socket.io-client";
+import { useParams } from "next/navigation";
+
+const WS_URL = process.env.NEXT_PUBLIC_WS_URL || "http://localhost:4000";
+
+export default function ChatPage() {
+  const { interestId } = useParams();
+  const { getToken } = useAuth();
+
+  const [messages, setMessages] = useState([]);
+  const [listingTitle, setListingTitle] = useState("");
+  const [currentUserId, setCurrentUserId] = useState(null);
+  const [input, setInput] = useState("");
+  const [connectionState, setConnectionState] = useState("connecting");
+  const [error, setError] = useState("");
+  const socketRef = useRef(null);
+  const bottomRef = useRef(null);
+
+  useEffect(() => {
+    let socket;
+
+    async function init() {
+      // Load history + verify access first
+      const res = await fetch(`/api/messages/${interestId}`);
+      if (!res.ok) {
+        setError(await res.text());
+        setConnectionState("error");
+        return;
+      }
+      const data = await res.json();
+      setMessages(data.messages);
+      setListingTitle(data.listingTitle);
+      setCurrentUserId(data.currentUserId);
+
+      const token = await getToken();
+      socket = io(WS_URL, { auth: { token } });
+      socketRef.current = socket;
+
+      socket.on("connect", () => {
+        socket.emit("join_room", { interestId }, (ack) => {
+          if (ack?.ok) {
+            setConnectionState("connected");
+          } else {
+            setError(ack?.error || "Could not join chat");
+            setConnectionState("error");
+          }
+        });
+      });
+
+      socket.on("new_message", (message) => {
+        setMessages((prev) => [...prev, message]);
+      });
+
+      socket.on("connect_error", () => {
+        setConnectionState("error");
+        setError("Could not reach the chat server. Is the WebSocket server running?");
+      });
+    }
+
+    init();
+    return () => socket?.disconnect();
+  }, [interestId, getToken]);
+
+  useEffect(() => {
+    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
+
+  function sendMessage(e) {
+    e.preventDefault();
+    if (!input.trim() || !socketRef.current) return;
+    socketRef.current.emit("send_message", { interestId, body: input }, (ack) => {
+      if (!ack?.ok) setError(ack?.error || "Failed to send");
+    });
+    setInput("");
+  }
+
+  return (
+    <main className="min-h-screen bg-parchment flex flex-col">
+      <div className="border-b border-ink/10 px-6 py-4">
+        <p className="text-xs text-ink/50">chat about</p>
+        <h1 className="font-display text-xl text-ink">{listingTitle || "…"}</h1>
+        <p className="text-xs mt-1">
+          {connectionState === "connected" && <span className="text-moss">● live</span>}
+          {connectionState === "connecting" && <span className="text-brass">● connecting…</span>}
+          {connectionState === "error" && <span className="text-clay">● {error}</span>}
+        </p>
+      </div>
+
+      <div className="flex-1 max-w-2xl w-full mx-auto px-6 py-6 space-y-3 overflow-y-auto">
+        {messages.map((m) => (
+          <div
+            key={m.id}
+            className={`max-w-[75%] px-4 py-2 rounded-card text-sm ${
+              m.sender_id === currentUserId
+                ? "bg-ink text-parchment ml-auto"
+                : "bg-linen text-ink border border-ink/10"
+            }`}
+          >
+            {m.body}
+          </div>
+        ))}
+        <div ref={bottomRef} />
+      </div>
+
+      <form onSubmit={sendMessage} className="max-w-2xl w-full mx-auto px-6 py-4 flex gap-3">
+        <input
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
+          placeholder="Type a message…"
+          disabled={connectionState !== "connected"}
+          className="flex-1 px-4 py-2.5 border border-ink/15 rounded-card bg-linen disabled:opacity-50"
+        />
+        <button
+          type="submit"
+          disabled={connectionState !== "connected"}
+          className="px-5 py-2.5 bg-ink text-parchment rounded-card disabled:opacity-50"
+        >
+          Send
+        </button>
+      </form>
+    </main>
+  );
+}
