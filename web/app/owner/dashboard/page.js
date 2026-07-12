@@ -5,7 +5,7 @@ import { currentDbUser } from "@/lib/currentDbUser";
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
 import Nav from "@/components/Nav";
 import InterestActions from "./InterestActions";
-import MarkFilledButton from "./MarkFilledButton";
+import ListingMenu from "./ListingMenu";
 
 export default async function OwnerDashboard() {
   const dbUser = await currentDbUser();
@@ -94,17 +94,7 @@ export default async function OwnerDashboard() {
                     {listing.is_filled && <span className="text-clay ml-2">· Filled</span>}
                   </p>
                 </div>
-                {!listing.is_filled && (
-                  <div className="flex gap-2">
-                    <Link
-                      href={`/owner/listings/${listing.id}/edit`}
-                      className="text-xs px-3 py-1.5 border border-ink/20 rounded-card text-ink/70 hover:border-ink"
-                    >
-                      Edit
-                    </Link>
-                    <MarkFilledButton listingId={listing.id} />
-                  </div>
-                )}
+                <ListingMenu listingId={listing.id} isFilled={listing.is_filled} />
               </div>
 
               <div className="mt-4 space-y-3">

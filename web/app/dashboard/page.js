@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { currentDbUser } from "@/lib/currentDbUser";
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
 
+
 // A single, stable landing spot after sign-in. Routes each person to the
 // right place instead of dropping everyone on the same generic page —
 // this is the fix for "confusing to navigate": one predictable entry point
