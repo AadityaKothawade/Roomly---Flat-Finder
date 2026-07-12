@@ -17,6 +17,7 @@ export default async function DashboardRedirect() {
   if (!dbUser.role) redirect("/onboarding");
 
   if (dbUser.role === "owner") redirect("/owner/dashboard");
+  if (dbUser.role === "admin") redirect("/admin");
 
   if (dbUser.role === "tenant") {
     const { data: profile } = await supabaseAdmin

@@ -2,11 +2,10 @@ import { currentDbUser } from "@/lib/currentDbUser";
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
 
 // GET: fetch a single listing — used to prefill the edit form.
-// Only the owning owner can fetch it via this route (browse page uses a
-// separate public read path).
+// Owners can fetch their own listings; admins can fetch any listing.
 export async function GET(_req, { params }) {
   const dbUser = await currentDbUser();
-  if (!dbUser || dbUser.role !== "owner") {
+  if (!dbUser || (dbUser.role !== "owner" && dbUser.role !== "admin")) {
     return new Response("Forbidden", { status: 403 });
   }
 
@@ -17,7 +16,9 @@ export async function GET(_req, { params }) {
     .single();
 
   if (error || !listing) return new Response("Not found", { status: 404 });
-  if (listing.owner_id !== dbUser.id) return new Response("Forbidden", { status: 403 });
+  if (listing.owner_id !== dbUser.id && dbUser.role !== "admin") {
+    return new Response("Forbidden", { status: 403 });
+  }
 
   return Response.json(listing);
 }
@@ -25,7 +26,7 @@ export async function GET(_req, { params }) {
 // PATCH: update a listing's details.
 export async function PATCH(req, { params }) {
   const dbUser = await currentDbUser();
-  if (!dbUser || dbUser.role !== "owner") {
+  if (!dbUser || (dbUser.role !== "owner" && dbUser.role !== "admin")) {
     return new Response("Forbidden", { status: 403 });
   }
 
@@ -35,7 +36,7 @@ export async function PATCH(req, { params }) {
     .eq("id", params.id)
     .single();
 
-  if (!existing || existing.owner_id !== dbUser.id) {
+  if (!existing || (existing.owner_id !== dbUser.id && dbUser.role !== "admin")) {
     return new Response("Forbidden", { status: 403 });
   }
 
@@ -58,9 +59,10 @@ export async function PATCH(req, { params }) {
 }
 
 // DELETE: remove a listing entirely (cascades to interests/scores via FK).
+// Owners can delete their own listings; admins can delete any listing.
 export async function DELETE(_req, { params }) {
   const dbUser = await currentDbUser();
-  if (!dbUser || dbUser.role !== "owner") {
+  if (!dbUser || (dbUser.role !== "owner" && dbUser.role !== "admin")) {
     return new Response("Forbidden", { status: 403 });
   }
 
@@ -70,7 +72,7 @@ export async function DELETE(_req, { params }) {
     .eq("id", params.id)
     .single();
 
-  if (!existing || existing.owner_id !== dbUser.id) {
+  if (!existing || (existing.owner_id !== dbUser.id && dbUser.role !== "admin")) {
     return new Response("Forbidden", { status: 403 });
   }
 

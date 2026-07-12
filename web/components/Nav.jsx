@@ -18,6 +18,10 @@ export default function Nav({ dbUser }) {
     links.push({ href: "/tenant/profile", label: "My preferences" });
   }
 
+  if (dbUser?.role === "admin") {
+    links.push({ href: "/admin", label: "Admin" });
+  }
+
   return (
     <header className="border-b border-ink/10 sticky top-0 bg-parchment/95 backdrop-blur z-10">
       <div className="max-w-5xl mx-auto px-6 py-4 flex items-center justify-between">
