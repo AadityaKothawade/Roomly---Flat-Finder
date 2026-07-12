@@ -16,7 +16,13 @@ if (!globalThis.WebSocket) {
 
 const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY);
 
-const httpServer = createServer();
+const httpServer = createServer((req, res) => {
+  // Handles plain HTTP requests (Render's port/health check, or anyone
+  // visiting the URL directly in a browser). socket.io has its own separate
+  // handler for its own protocol path, so this only fires for everything else.
+  res.writeHead(200, { "Content-Type": "text/plain" });
+  res.end("Roomly WebSocket server is running");
+});
 const io = new Server(httpServer, {
   cors: { origin: process.env.FRONTEND_URL, credentials: true },
 });
