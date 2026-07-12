@@ -4,10 +4,29 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --color-ink: 18 33 58;
+  --color-parchment: 246 241 231;
+  --color-moss: 63 107 78;
+  --color-clay: 181 88 58;
+  --color-brass: 176 141 87;
+  --color-linen: 237 230 214;
+}
+
+.dark {
+  --color-ink: 246 241 231;
+  --color-parchment: 15 20 32;
+  --color-moss: 111 166 132;
+  --color-clay: 217 138 108;
+  --color-brass: 212 184 122;
+  --color-linen: 26 33 48;
+}
+
 body {
-  background-color: #f6f1e7;
-  color: #12213a;
+  background-color: rgb(var(--color-parchment));
+  color: rgb(var(--color-ink));
   font-family: "Inter", system-ui, sans-serif;
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
 
 h1, h2, h3, .font-display {
@@ -15,12 +34,12 @@ h1, h2, h3, .font-display {
 }
 
 ::selection {
-  background: #b08d57;
-  color: #f6f1e7;
+  background: rgb(var(--color-brass));
+  color: rgb(var(--color-parchment));
 }
 
 :focus-visible {
-  outline: 2px solid #3f6b4e;
+  outline: 2px solid rgb(var(--color-moss));
   outline-offset: 2px;
 }
 

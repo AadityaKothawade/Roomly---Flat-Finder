@@ -1,15 +1,16 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
+  darkMode: "class",
   content: ["./app/**/*.{js,jsx}", "./components/**/*.{js,jsx}"],
   theme: {
     extend: {
       colors: {
-        ink: "#12213A",       // deep navy — headings, primary actions
-        parchment: "#F6F1E7", // warm off-white background
-        moss: "#3F6B4E",      // trust/match-positive accent
-        clay: "#B5583A",      // low-match / warning accent
-        brass: "#B08D57",     // secondary accent, dividers
-        linen: "#EDE6D6",     // card surfaces
+        ink: "rgb(var(--color-ink) / <alpha-value>)",
+        parchment: "rgb(var(--color-parchment) / <alpha-value>)",
+        moss: "rgb(var(--color-moss) / <alpha-value>)",
+        clay: "rgb(var(--color-clay) / <alpha-value>)",
+        brass: "rgb(var(--color-brass) / <alpha-value>)",
+        linen: "rgb(var(--color-linen) / <alpha-value>)",
       },
       fontFamily: {
         display: ["Fraunces", "Georgia", "serif"],

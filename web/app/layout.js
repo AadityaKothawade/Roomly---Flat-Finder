@@ -9,7 +9,24 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <ClerkProvider>
-      <html lang="en">
+      <html lang="en" suppressHydrationWarning>
+        <head>
+          <script
+            dangerouslySetInnerHTML={{
+              __html: `
+                (function() {
+                  try {
+                    var theme = localStorage.getItem('theme');
+                    var systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+                    if (theme === 'dark' || (!theme && systemDark)) {
+                      document.documentElement.classList.add('dark');
+                    }
+                  } catch (e) {}
+                })();
+              `,
+            }}
+          />
+        </head>
         <body>{children}</body>
       </html>
     </ClerkProvider>

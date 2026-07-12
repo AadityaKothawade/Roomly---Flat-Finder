@@ -154,13 +154,13 @@ export default function ListingForm({ listingId, initial }) {
         .input {
           width: 100%;
           padding: 0.65rem 0.85rem;
-          border: 1px solid rgba(18, 33, 58, 0.15);
+          border: 1px solid rgb(var(--color-ink) / 0.15);
           border-radius: 6px;
-          background: #f6f1e7;
-          color: #12213a;
-        }
+          background: rgb(var(--color-parchment));
+          color: rgb(var(--color-ink));
+          }
         .input:focus {
-          outline: 2px solid #3f6b4e;
+          outline: 2px solid rgb(var(--color-moss));
           outline-offset: 1px;
         }
       `}</style>

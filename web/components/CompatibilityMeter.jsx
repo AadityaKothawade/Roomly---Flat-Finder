@@ -12,7 +12,12 @@ export default function CompatibilityMeter({ score, explanation, source, static:
   const circumference = 2 * Math.PI * radius;
   const offset = circumference - (score / 100) * circumference;
 
-  const color = score >= 75 ? "#3F6B4E" : score >= 45 ? "#B08D57" : "#B5583A";
+  const color =
+  score >= 75
+    ? "rgb(var(--color-moss))"
+    : score >= 45
+    ? "rgb(var(--color-brass))"
+    : "rgb(var(--color-clay))";
   const label = score >= 75 ? "Strong match" : score >= 45 ? "Fair match" : "Weak match";
 
   const Wrapper = isStatic ? "div" : "button";
@@ -33,7 +38,7 @@ export default function CompatibilityMeter({ score, explanation, source, static:
         aria-expanded={isStatic ? undefined : open}
       >
         <svg width="80" height="80" viewBox="0 0 80 80" className="shrink-0">
-          <circle cx="40" cy="40" r={radius} fill="none" stroke="#EDE6D6" strokeWidth="8" />
+          <circle cx="40" cy="40" r={radius} fill="none" stroke="rgb(var(--color-linen))" strokeWidth="8" />
           <circle
             cx="40"
             cy="40"
@@ -47,10 +52,10 @@ export default function CompatibilityMeter({ score, explanation, source, static:
             transform="rotate(-90 40 40)"
             style={{ transition: "stroke-dashoffset 0.6s ease" }}
           />
-          <text x="40" y="37" textAnchor="middle" fontSize="20" fontWeight="600" fill="#12213A" fontFamily="Fraunces, serif">
+          <text x="40" y="37" textAnchor="middle" fontSize="20" fontWeight="600" fill="rgb(var(--color-ink))" fontFamily="Fraunces, serif">
             {score}
           </text>
-          <text x="40" y="52" textAnchor="middle" fontSize="9" fill="#12213A" opacity="0.6">
+          <text x="40" y="52" textAnchor="middle" fontSize="9" fill="rgb(var(--color-ink))" opacity="0.6">
             / 100
           </text>
         </svg>

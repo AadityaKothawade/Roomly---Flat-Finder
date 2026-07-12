@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { UserButton } from "@clerk/nextjs";
+import ThemeToggle from "./ThemeToggle";
 
 export default function Nav({ dbUser }) {
   const pathname = usePathname();
@@ -47,6 +48,8 @@ export default function Nav({ dbUser }) {
               Finish setup
             </Link>
           )}
+
+          <ThemeToggle />
 
           {dbUser ? (
             <UserButton afterSignOutUrl="/" />

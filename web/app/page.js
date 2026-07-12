@@ -2,6 +2,7 @@ export const dynamic = "force-dynamic";
 
 import Link from "next/link";
 import { auth } from "@clerk/nextjs/server";
+import ThemeToggle from "@/components/ThemeToggle";
 
 export default async function Home() {
   const { userId } = await auth();
@@ -11,6 +12,7 @@ export default async function Home() {
       <header className="max-w-5xl mx-auto w-full px-6 py-6 flex items-center justify-between">
         <span className="font-display text-xl text-ink">Roomly</span>
         <nav className="flex gap-4 text-sm items-center">
+          <ThemeToggle />
           {userId ? (
             <Link href="/dashboard" className="px-4 py-2 bg-ink text-parchment rounded-card">
               Go to app
