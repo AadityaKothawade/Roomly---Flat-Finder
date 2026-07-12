@@ -1,8 +1,18 @@
 import "dotenv/config";
 import { createServer } from "http";
 import { Server } from "socket.io";
+import { WebSocket } from "ws";
 import { createClient } from "@supabase/supabase-js";
 import { verifyToken } from "@clerk/backend";
+
+// Supabase's client library expects a native WebSocket global for its
+// realtime subsystem, which only exists natively starting in Node 22.
+// This polyfills it so createClient() doesn't crash on Node 20/21 — we
+// don't actually use realtime features here, but the client sets this up
+// unconditionally regardless.
+if (!globalThis.WebSocket) {
+  globalThis.WebSocket = WebSocket;
+}
 
 const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY);
 
@@ -20,7 +30,6 @@ io.use(async (socket, next) => {
     const payload = await verifyToken(token, { secretKey: process.env.CLERK_SECRET_KEY });
     socket.clerkUserId = payload.sub;
 
-    // Map the Clerk user to our internal Supabase user id
     const { data: dbUser, error } = await supabase
       .from("users")
       .select("id")

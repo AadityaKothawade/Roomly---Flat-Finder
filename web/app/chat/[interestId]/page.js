@@ -21,27 +21,38 @@ export default function ChatPage() {
   const bottomRef = useRef(null);
 
   useEffect(() => {
+    let cancelled = false;
     let socket;
 
     async function init() {
-      // Load history + verify access first
       const res = await fetch(`/api/messages/${interestId}`);
       if (!res.ok) {
-        setError(await res.text());
-        setConnectionState("error");
+        if (!cancelled) {
+          setError(await res.text());
+          setConnectionState("error");
+        }
         return;
       }
       const data = await res.json();
+      if (cancelled) return;
+
       setMessages(data.messages);
       setListingTitle(data.listingTitle);
       setCurrentUserId(data.currentUserId);
 
       const token = await getToken();
+      if (cancelled) return;
+
       socket = io(WS_URL, { auth: { token } });
       socketRef.current = socket;
 
       socket.on("connect", () => {
+        if (cancelled) {
+          socket.disconnect();
+          return;
+        }
         socket.emit("join_room", { interestId }, (ack) => {
+          if (cancelled) return;
           if (ack?.ok) {
             setConnectionState("connected");
           } else {
@@ -52,18 +63,24 @@ export default function ChatPage() {
       });
 
       socket.on("new_message", (message) => {
-        setMessages((prev) => [...prev, message]);
+        if (cancelled) return;
+        setMessages((prev) => (prev.some((m) => m.id === message.id) ? prev : [...prev, message]));
       });
 
       socket.on("connect_error", () => {
+        if (cancelled) return;
         setConnectionState("error");
         setError("Could not reach the chat server. Is the WebSocket server running?");
       });
     }
 
     init();
-    return () => socket?.disconnect();
-  }, [interestId, getToken]);
+    return () => {
+      cancelled = true;
+      socket?.disconnect();
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [interestId]);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
