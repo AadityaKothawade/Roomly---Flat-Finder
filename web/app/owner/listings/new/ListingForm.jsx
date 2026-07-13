@@ -58,12 +58,7 @@ export default function ListingForm({ listingId, initial }) {
   }
 
   return (
-    <div className="max-w-xl mx-auto px-6 py-16">
-      <p className="font-display italic text-brass text-sm mb-2">{isEdit ? "edit listing" : "list a room"}</p>
-      <h1 className="font-display text-3xl text-ink mb-8">
-        {isEdit ? "Update the room details" : "Tell us about the room"}
-      </h1>
-
+    <div className="max-w-xl mx-auto px-6 pb-12">
       <form onSubmit={handleSubmit} className="space-y-5">
         <Field label="Title">
           <input

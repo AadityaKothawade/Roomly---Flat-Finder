@@ -3,6 +3,7 @@ export const dynamic = "force-dynamic";
 import { currentDbUser } from "@/lib/currentDbUser";
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
 import Nav from "@/components/Nav";
+import PageHeader from "@/components/PageHeader";
 import AdminListingRow from "./AdminListingRow";
 import AdminUserRow from "./AdminUserRow";
 
@@ -44,9 +45,8 @@ export default async function AdminPage() {
   return (
     <main className="min-h-screen bg-parchment">
       <Nav dbUser={dbUser} />
-      <div className="max-w-5xl mx-auto px-6 py-12">
-        <h1 className="font-display text-3xl text-ink mb-8">Admin</h1>
-
+      <PageHeader title="Admin" />
+      <div className="max-w-5xl mx-auto px-6 pb-12">
         <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-12">
           <Stat label="Users" value={totalUsers} />
           <Stat label="Owners" value={totalOwners} />

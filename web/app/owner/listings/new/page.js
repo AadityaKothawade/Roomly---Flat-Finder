@@ -1,5 +1,6 @@
 import { currentDbUser } from "@/lib/currentDbUser";
 import Nav from "@/components/Nav";
+import PageHeader from "@/components/PageHeader";
 import ListingForm from "./ListingForm";
 
 export const dynamic = "force-dynamic";
@@ -21,6 +22,7 @@ export default async function NewListingPage() {
   return (
     <main className="min-h-screen bg-parchment">
       <Nav dbUser={dbUser} />
+      <PageHeader title="New listing" backHref="/owner/dashboard" backLabel="My listings" />
       <ListingForm />
     </main>
   );

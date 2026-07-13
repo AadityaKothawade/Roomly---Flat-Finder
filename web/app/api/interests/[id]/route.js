@@ -15,7 +15,7 @@ export async function PATCH(req, { params }) {
 
   const { data: interest } = await supabaseAdmin
     .from("interests")
-    .select("id, listing_id, tenant_id, listings:listing_id(title, owner_id), tenant:tenant_id(email)")
+    .select("id, listing_id, tenant_id, listings:listing_id(title, owner_id), tenant:tenant_id(email, name)")
     .eq("id", params.id)
     .single();
 
@@ -33,6 +33,7 @@ export async function PATCH(req, { params }) {
   if (interest.tenant?.email) {
     await sendInterestDecisionEmail({
       tenantEmail: interest.tenant.email,
+      tenantName: interest.tenant.name,
       listingTitle: interest.listings.title,
       status,
     });

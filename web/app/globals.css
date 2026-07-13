@@ -22,11 +22,16 @@
   --color-linen: 26 33 48;
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
 body {
   background-color: rgb(var(--color-parchment));
   color: rgb(var(--color-ink));
   font-family: "Inter", system-ui, sans-serif;
   transition: background-color 0.2s ease, color 0.2s ease;
+  -webkit-font-smoothing: antialiased;
 }
 
 h1, h2, h3, .font-display {
@@ -43,21 +48,102 @@ h1, h2, h3, .font-display {
   outline-offset: 2px;
 }
 
+@layer components {
+  .page-shell {
+    @apply min-h-screen bg-parchment;
+  }
+
+  .page-content {
+    @apply max-w-4xl mx-auto px-6 pb-14;
+  }
+
+  .page-content-narrow {
+    @apply max-w-xl mx-auto px-6 pb-14;
+  }
+
+  .card {
+    @apply bg-linen border border-ink/10 rounded-xl shadow-sm;
+  }
+
+  .card-hover {
+    @apply card transition-all duration-200 hover:border-moss/40 hover:shadow-md;
+  }
+
+  .input {
+    @apply w-full px-3.5 py-2.5 text-sm border border-ink/15 rounded-lg bg-parchment text-ink
+      placeholder:text-ink/35 transition-colors;
+  }
+
+  .input:focus {
+    @apply outline-none ring-2 ring-moss/30 border-moss/40;
+  }
+
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium rounded-lg
+      transition-all duration-150 disabled:opacity-50 disabled:pointer-events-none;
+  }
+
+  .btn-primary {
+    @apply btn bg-ink text-parchment hover:opacity-90;
+  }
+
+  .btn-secondary {
+    @apply btn border border-ink/20 text-ink hover:border-ink/40 hover:bg-ink/5;
+  }
+
+  .btn-moss {
+    @apply btn bg-moss text-parchment hover:opacity-90;
+  }
+
+  .btn-danger {
+    @apply btn border border-clay/50 text-clay hover:bg-clay/10;
+  }
+
+  .btn-ghost {
+    @apply btn text-ink/60 hover:text-ink hover:bg-ink/5;
+  }
+
+  .badge {
+    @apply inline-flex items-center px-2.5 py-0.5 text-xs font-medium rounded-full;
+  }
+
+  .badge-moss {
+    @apply badge bg-moss/15 text-moss;
+  }
+
+  .badge-brass {
+    @apply badge bg-brass/15 text-brass;
+  }
+
+  .badge-clay {
+    @apply badge bg-clay/15 text-clay;
+  }
+
+  .badge-ink {
+    @apply badge bg-ink/10 text-ink/70;
+  }
+
+  .chip {
+    @apply inline-flex items-center px-2 py-0.5 text-xs rounded-md bg-ink/5 text-ink/60 capitalize;
+  }
+
+  .alert {
+    @apply p-4 rounded-xl text-sm border;
+  }
+
+  .alert-info {
+    @apply alert bg-moss/10 border-moss/25 text-moss;
+  }
+
+  .alert-warn {
+    @apply alert bg-brass/10 border-brass/25 text-brass;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   * {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
-  }
-}
-
-@keyframes fadeUp {
-  from {
-    opacity: 0;
-    transform: translateY(12px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
   }
 }

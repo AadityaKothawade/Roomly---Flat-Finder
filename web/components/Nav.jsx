@@ -7,36 +7,38 @@ import ThemeToggle from "./ThemeToggle";
 
 export default function Nav({ dbUser }) {
   const pathname = usePathname();
-
   const needsOnboarding = dbUser && !dbUser.role;
 
   const links = [{ href: "/listings", label: "Browse rooms" }];
   if (dbUser?.role === "owner") {
-    links.push({ href: "/owner/dashboard", label: "My listings" });
+    links.unshift({ href: "/owner/dashboard", label: "My listings" });
   }
   if (dbUser?.role === "tenant") {
     links.push({ href: "/tenant/profile", label: "My preferences" });
   }
-
   if (dbUser?.role === "admin") {
     links.push({ href: "/admin", label: "Admin" });
   }
 
   return (
-    <header className="border-b border-ink/10 sticky top-0 bg-parchment/95 backdrop-blur z-10">
-      <div className="max-w-5xl mx-auto px-6 py-4 flex items-center justify-between">
-        <Link href="/" className="font-display text-xl tracking-tight text-ink">
+    <header className="sticky top-0 z-20 border-b border-ink/10 bg-parchment/90 backdrop-blur-md">
+      <div className="max-w-5xl mx-auto px-6 h-14 flex items-center justify-between gap-4">
+        <Link href="/" className="font-display text-lg text-ink flex items-center gap-2 shrink-0">
+          <span className="w-2 h-2 rounded-full bg-moss" aria-hidden="true" />
           Roomly
         </Link>
-        <nav className="flex items-center gap-6 text-sm">
+
+        <nav className="flex items-center gap-1 sm:gap-2 text-sm">
           {links.map((link) => {
             const isActive = pathname === link.href || pathname?.startsWith(link.href + "/");
             return (
               <Link
                 key={link.href}
                 href={link.href}
-                className={`transition-colors ${
-                  isActive ? "text-ink font-medium border-b-2 border-moss pb-1" : "text-ink/70 hover:text-ink"
+                className={`px-3 py-1.5 rounded-lg transition-colors ${
+                  isActive
+                    ? "bg-ink/8 text-ink font-medium"
+                    : "text-ink/60 hover:text-ink hover:bg-ink/5"
                 }`}
               >
                 {link.label}
@@ -45,20 +47,19 @@ export default function Nav({ dbUser }) {
           })}
 
           {needsOnboarding && (
-            <Link
-              href="/onboarding"
-              className="text-brass font-medium underline decoration-dotted"
-            >
+            <Link href="/onboarding" className="px-3 py-1.5 text-brass font-medium text-sm hover:bg-brass/10 rounded-lg">
               Finish setup
             </Link>
           )}
+
+          <div className="w-px h-5 bg-ink/10 mx-1 hidden sm:block" aria-hidden="true" />
 
           <ThemeToggle />
 
           {dbUser ? (
             <UserButton afterSignOutUrl="/" />
           ) : (
-            <Link href="/sign-in" className="px-3 py-1.5 bg-ink text-parchment rounded-card">
+            <Link href="/sign-in" className="btn-primary !py-1.5 !px-3.5 text-xs sm:text-sm">
               Sign in
             </Link>
           )}

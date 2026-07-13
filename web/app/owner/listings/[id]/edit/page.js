@@ -1,6 +1,7 @@
 import { currentDbUser } from "@/lib/currentDbUser";
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
 import Nav from "@/components/Nav";
+import PageHeader from "@/components/PageHeader";
 import ListingForm from "../../new/ListingForm";
 
 export const dynamic = "force-dynamic";
@@ -39,6 +40,7 @@ export default async function EditListingPage({ params }) {
   return (
     <main className="min-h-screen bg-parchment">
       <Nav dbUser={dbUser} />
+      <PageHeader title="Edit listing" backHref="/owner/dashboard" backLabel="My listings" />
       <ListingForm
         listingId={listing.id}
         initial={{

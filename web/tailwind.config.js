@@ -18,6 +18,12 @@ module.exports = {
       },
       borderRadius: {
         card: "6px",
+        lg: "10px",
+        xl: "14px",
+      },
+      boxShadow: {
+        soft: "0 2px 12px rgb(var(--color-ink) / 0.06)",
+        card: "0 4px 20px rgb(var(--color-ink) / 0.08)",
       },
     },
   },

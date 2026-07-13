@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { useAuth } from "@clerk/nextjs";
 import { io } from "socket.io-client";
 import { useParams } from "next/navigation";
+import Link from "next/link";
 
 const WS_URL = process.env.NEXT_PUBLIC_WS_URL || "http://localhost:4000";
 
@@ -97,17 +98,21 @@ export default function ChatPage() {
 
   return (
     <main className="min-h-screen bg-parchment flex flex-col">
-      <div className="border-b border-ink/10 px-6 py-4">
-        <p className="text-xs text-ink/50">chat about</p>
-        <h1 className="font-display text-xl text-ink">{listingTitle || "…"}</h1>
-        <p className="text-xs mt-1">
+      <div className="border-b border-ink/10 px-6 py-3 flex items-center justify-between max-w-2xl w-full mx-auto">
+        <div className="min-w-0">
+          <Link href="/listings" className="text-sm text-ink/50 hover:text-ink">
+            ← Back
+          </Link>
+          <h1 className="font-display text-lg text-ink truncate">{listingTitle || "Chat"}</h1>
+        </div>
+        <span className="text-xs shrink-0 ml-3">
           {connectionState === "connected" && <span className="text-moss">● live</span>}
-          {connectionState === "connecting" && <span className="text-brass">● connecting…</span>}
-          {connectionState === "error" && <span className="text-clay">● {error}</span>}
-        </p>
+          {connectionState === "connecting" && <span className="text-brass">connecting…</span>}
+          {connectionState === "error" && <span className="text-clay">offline</span>}
+        </span>
       </div>
 
-      <div className="flex-1 max-w-2xl w-full mx-auto px-6 py-6 space-y-3 overflow-y-auto">
+      <div className="flex-1 max-w-2xl w-full mx-auto px-6 py-4 space-y-3 overflow-y-auto">
         {messages.map((m) => (
           <div
             key={m.id}

@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import StatusBadge from "@/components/ui/StatusBadge";
 
 export default function InterestActions({ interestId, status }) {
   const router = useRouter();
@@ -19,27 +20,15 @@ export default function InterestActions({ interestId, status }) {
   }
 
   if (status !== "pending") {
-    return (
-      <span className={`text-xs font-medium ${status === "accepted" ? "text-moss" : "text-clay"}`}>
-        {status}
-      </span>
-    );
+    return <StatusBadge status={status} />;
   }
 
   return (
     <div className="flex gap-2">
-      <button
-        onClick={() => decide("accepted")}
-        disabled={loading}
-        className="text-xs px-3 py-1.5 bg-moss text-parchment rounded-card disabled:opacity-50"
-      >
+      <button onClick={() => decide("accepted")} disabled={loading} className="btn-moss !py-1.5 !px-3 text-xs">
         Accept
       </button>
-      <button
-        onClick={() => decide("declined")}
-        disabled={loading}
-        className="text-xs px-3 py-1.5 border border-clay text-clay rounded-card disabled:opacity-50"
-      >
+      <button onClick={() => decide("declined")} disabled={loading} className="btn-danger !py-1.5 !px-3 text-xs">
         Decline
       </button>
     </div>

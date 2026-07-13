@@ -2,28 +2,33 @@
 
 import { useState } from "react";
 
-// The signature visual of the app: a hand-drawn-feeling radial meter for the
-// AI compatibility score, with the LLM's explanation revealed on click.
-// Color communicates fit at a glance; the explanation is the "why".
-export default function CompatibilityMeter({ score, explanation, source, static: isStatic = false }) {
+export default function CompatibilityMeter({
+  score,
+  explanation,
+  source,
+  static: isStatic = false,
+  compact = false,
+}) {
   const [open, setOpen] = useState(false);
 
-  const radius = 34;
+  const size = compact ? 56 : 80;
+  const radius = compact ? 22 : 34;
   const circumference = 2 * Math.PI * radius;
   const offset = circumference - (score / 100) * circumference;
+  const center = size / 2;
 
   const color =
-  score >= 75
-    ? "rgb(var(--color-moss))"
-    : score >= 45
-    ? "rgb(var(--color-brass))"
-    : "rgb(var(--color-clay))";
-  const label = score >= 75 ? "Strong match" : score >= 45 ? "Fair match" : "Weak match";
+    score >= 75
+      ? "rgb(var(--color-moss))"
+      : score >= 45
+        ? "rgb(var(--color-brass))"
+        : "rgb(var(--color-clay))";
+  const label = score >= 75 ? "Strong" : score >= 45 ? "Fair" : "Weak";
 
   const Wrapper = isStatic ? "div" : "button";
 
   return (
-    <div className="inline-block">
+    <div className="inline-block shrink-0">
       <Wrapper
         onClick={
           isStatic
@@ -34,48 +39,67 @@ export default function CompatibilityMeter({ score, explanation, source, static:
                 setOpen((o) => !o);
               }
         }
-        className="flex items-center gap-3 text-left group"
+        className="flex items-center gap-2.5 text-left group"
         aria-expanded={isStatic ? undefined : open}
       >
-        <svg width="80" height="80" viewBox="0 0 80 80" className="shrink-0">
-          <circle cx="40" cy="40" r={radius} fill="none" stroke="rgb(var(--color-linen))" strokeWidth="8" />
+        <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} className="shrink-0">
           <circle
-            cx="40"
-            cy="40"
+            cx={center}
+            cy={center}
+            r={radius}
+            fill="none"
+            stroke="rgb(var(--color-linen))"
+            strokeWidth={compact ? 6 : 8}
+          />
+          <circle
+            cx={center}
+            cy={center}
             r={radius}
             fill="none"
             stroke={color}
-            strokeWidth="8"
+            strokeWidth={compact ? 6 : 8}
             strokeLinecap="round"
             strokeDasharray={circumference}
             strokeDashoffset={offset}
-            transform="rotate(-90 40 40)"
-            style={{ transition: "stroke-dashoffset 0.6s ease" }}
+            transform={`rotate(-90 ${center} ${center})`}
+            style={{ transition: "stroke-dashoffset 0.5s ease" }}
           />
-          <text x="40" y="37" textAnchor="middle" fontSize="20" fontWeight="600" fill="rgb(var(--color-ink))" fontFamily="Fraunces, serif">
+          <text
+            x={center}
+            y={compact ? center - 1 : center - 2}
+            textAnchor="middle"
+            fontSize={compact ? 14 : 20}
+            fontWeight="600"
+            fill="rgb(var(--color-ink))"
+            fontFamily="Fraunces, serif"
+          >
             {score}
           </text>
-          <text x="40" y="52" textAnchor="middle" fontSize="9" fill="rgb(var(--color-ink))" opacity="0.6">
-            / 100
-          </text>
+          {!compact && (
+            <text x={center} y={center + 14} textAnchor="middle" fontSize="9" fill="rgb(var(--color-ink))" opacity="0.5">
+              / 100
+            </text>
+          )}
         </svg>
-        <div>
-          <div className="font-display text-sm font-medium" style={{ color }}>
-            {label}
-          </div>
-          {!isStatic && (
-            <div className="text-xs text-ink/60 underline decoration-dotted group-hover:text-ink">
-              {open ? "hide reasoning" : "why this score?"}
+        {!compact && (
+          <div>
+            <div className="font-display text-sm font-medium" style={{ color }}>
+              {label} match
             </div>
-          )}
-          {source === "fallback" && (
-            <div className="text-[10px] text-brass mt-0.5">estimated (AI unavailable)</div>
-          )}
-        </div>
+            {!isStatic && (
+              <div className="text-xs text-ink/50 underline decoration-dotted group-hover:text-ink">
+                {open ? "hide" : "why?"}
+              </div>
+            )}
+            {source === "fallback" && (
+              <div className="text-[10px] text-brass mt-0.5">estimated</div>
+            )}
+          </div>
+        )}
       </Wrapper>
 
       {!isStatic && open && (
-        <p className="mt-2 max-w-sm text-sm leading-relaxed text-ink/80 bg-linen border border-brass/30 rounded-card p-3">
+        <p className="mt-2 max-w-xs text-sm leading-relaxed text-ink/75 card p-3 border-brass/20">
           {explanation}
         </p>
       )}

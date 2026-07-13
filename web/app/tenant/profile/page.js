@@ -1,5 +1,6 @@
 import { currentDbUser } from "@/lib/currentDbUser";
 import Nav from "@/components/Nav";
+import PageHeader from "@/components/PageHeader";
 import ProfileForm from "./ProfileForm";
 
 export const dynamic = "force-dynamic";
@@ -21,6 +22,7 @@ export default async function TenantProfilePage() {
   return (
     <main className="min-h-screen bg-parchment">
       <Nav dbUser={dbUser} />
+      <PageHeader title="My preferences" backHref="/listings" backLabel="Browse rooms" />
       <ProfileForm />
     </main>
   );

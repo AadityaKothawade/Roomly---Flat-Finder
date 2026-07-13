@@ -80,17 +80,7 @@ export default function ProfileForm() {
   }
 
   return (
-    <div className="max-w-xl mx-auto px-6 py-16">
-      <p className="font-display italic text-brass text-sm mb-2">your preferences</p>
-      <h1 className="font-display text-3xl text-ink mb-2">
-        {hasExisting ? "Your preferences" : "What are you looking for?"}
-      </h1>
-      <p className="text-sm text-ink/60 mb-8">
-        {hasExisting
-          ? "Update these anytime — changing them re-scores every listing you browse next."
-          : "This is what the AI compares against every listing to compute your match score."}
-      </p>
-
+    <div className="max-w-xl mx-auto px-6 pb-12">
       <form onSubmit={handleSubmit} className="space-y-5">
         <Field label="Preferred location">
           <input
