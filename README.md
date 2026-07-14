@@ -1,6 +1,6 @@
 # Roomly — Rent & Flatmate Finder
 
-**Live app:** https://roomly-flat-finder-git-main-aadityas-projects-150c2474.vercel.app/
+**Live app:** https://roomly-flat-finder.vercel.app/
 
 Room listings ranked by an AI compatibility score, with real-time chat once
 interest is expressed, and email notifications on key events.
