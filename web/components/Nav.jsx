@@ -46,6 +46,12 @@ export default function Nav({ dbUser }) {
             );
           })}
 
+          {dbUser?.role === "owner" && (
+            <Link href="/owner/listings/new" className="btn-moss !py-1.5 !px-3.5 text-xs sm:text-sm hidden sm:inline-flex">
+              + Post a room
+            </Link>
+          )}
+
           {needsOnboarding && (
             <Link href="/onboarding" className="px-3 py-1.5 text-brass font-medium text-sm hover:bg-brass/10 rounded-lg">
               Finish setup

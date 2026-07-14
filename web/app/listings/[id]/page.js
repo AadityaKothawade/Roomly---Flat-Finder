@@ -28,9 +28,10 @@ export default async function ListingDetail({ params }) {
 
   let score = null;
   let existingInterest = null;
+  let profile = null;
 
   if (dbUser?.role === "tenant") {
-    const [{ data: profile }, { data: interest }] = await Promise.all([
+    const [{ data: fetchedProfile }, { data: interest }] = await Promise.all([
       supabaseAdmin.from("tenant_profiles").select("*").eq("tenant_id", dbUser.id).single(),
       supabaseAdmin
         .from("interests")
@@ -40,11 +41,14 @@ export default async function ListingDetail({ params }) {
         .single(),
     ]);
 
+    profile = fetchedProfile;
     if (profile) {
       score = await getOrComputeScore(dbUser.id, listing, profile);
     }
     existingInterest = interest;
   }
+
+  const ownerName = listing.owner?.name || listing.owner?.email?.split("@")[0] || "Owner";
 
   return (
     <main className="page-shell">
@@ -52,6 +56,16 @@ export default async function ListingDetail({ params }) {
       <PageHeader title={listing.title} backHref="/listings" backLabel="Browse rooms" />
       <div className="page-content max-w-2xl">
         <div className="card p-5 md:p-6 mb-6">
+          <div className="flex items-center gap-2.5 mb-4 pb-4 border-b border-ink/10">
+            <span className="w-8 h-8 rounded-full bg-moss/15 text-moss text-sm font-semibold flex items-center justify-center uppercase shrink-0">
+              {ownerName[0]}
+            </span>
+            <div>
+              <p className="text-sm font-medium text-ink">{ownerName}</p>
+              <p className="text-xs text-ink/45">Listing owner</p>
+            </div>
+          </div>
+
           <div className="flex flex-wrap gap-2 mb-4">
             <span className="chip">{listing.location}</span>
             <span className="chip">₹{listing.rent.toLocaleString("en-IN")}/mo</span>
@@ -72,6 +86,13 @@ export default async function ListingDetail({ params }) {
                 explanation={score.explanation}
                 source={score.source}
               />
+            </div>
+          )}
+
+          {dbUser?.role === "tenant" && !profile && (
+            <div className="alert-warn mt-4">
+              <a href="/tenant/profile" className="font-medium underline">Set your preferences</a>{" "}
+              to see your compatibility score for this room.
             </div>
           )}
         </div>

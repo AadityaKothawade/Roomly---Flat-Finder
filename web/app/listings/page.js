@@ -14,7 +14,10 @@ export default async function Listings({ searchParams }) {
   const location = searchParams?.location || "";
   const maxBudget = searchParams?.maxBudget || "";
 
-  let query = supabaseAdmin.from("listings").select("*").eq("is_filled", false);
+  let query = supabaseAdmin
+    .from("listings")
+    .select("*, owner:owner_id(name, email)")
+    .eq("is_filled", false);
   if (dbUser?.id) query = query.neq("owner_id", dbUser.id);
   if (location) query = query.ilike("location", `%${location}%`);
   if (maxBudget) query = query.lte("rent", Number(maxBudget));
@@ -48,12 +51,24 @@ export default async function Listings({ searchParams }) {
         subtitle={profile ? `${scored.length} listing${scored.length === 1 ? "" : "s"} ranked by your fit` : undefined}
       />
       <div className="page-content">
-        {!profile && dbUser?.role === "tenant" && (
-          <div className="alert-warn mb-6">
-            <Link href="/tenant/profile" className="font-medium underline">
-              Set your preferences
-            </Link>{" "}
-            to unlock AI compatibility scores on every listing.
+        {dbUser?.role === "tenant" && !profile && (
+          <Link
+            href="/tenant/profile"
+            className="card-hover flex items-center justify-between gap-4 p-5 mb-6 border-brass/30 bg-brass/5"
+          >
+            <div>
+              <p className="font-display text-base text-ink mb-1">Unlock your compatibility scores</p>
+              <p className="text-sm text-ink/60">
+                Set your budget, location, and move-in date once — every listing below will be scored and ranked for you.
+              </p>
+            </div>
+            <span className="btn-moss !py-2 !px-4 text-xs shrink-0">Set preferences →</span>
+          </Link>
+        )}
+
+        {!dbUser && (
+          <div className="alert-info mb-6">
+            <a href="/sign-in" className="font-medium underline">Sign in</a> as a tenant to see compatibility scores and express interest.
           </div>
         )}
 
@@ -83,34 +98,43 @@ export default async function Listings({ searchParams }) {
           </div>
         ) : (
           <div className="space-y-3">
-            {scored.map(({ listing, score }) => (
-              <Link
-                key={listing.id}
-                href={`/listings/${listing.id}`}
-                className="card-hover flex items-center justify-between gap-4 p-4 md:p-5 group"
-              >
-                <div className="min-w-0">
-                  <h2 className="font-display text-lg text-ink group-hover:text-moss transition-colors truncate">
-                    {listing.title}
-                  </h2>
-                  <p className="text-sm text-ink/55 mt-1">{listing.location}</p>
-                  <div className="flex flex-wrap gap-2 mt-2">
-                    <span className="chip">₹{listing.rent.toLocaleString("en-IN")}/mo</span>
-                    <span className="chip capitalize">{listing.room_type}</span>
-                    <span className="chip capitalize">{listing.furnishing_status}</span>
+            {scored.map(({ listing, score }) => {
+              const ownerName = listing.owner?.name || listing.owner?.email?.split("@")[0] || "Owner";
+              return (
+                <Link
+                  key={listing.id}
+                  href={`/listings/${listing.id}`}
+                  className="card-hover flex items-center justify-between gap-4 p-4 md:p-5 group"
+                >
+                  <div className="min-w-0">
+                    <h2 className="font-display text-lg text-ink group-hover:text-moss transition-colors truncate">
+                      {listing.title}
+                    </h2>
+                    <p className="text-sm text-ink/55 mt-1">{listing.location}</p>
+                    <div className="flex items-center gap-2 mt-2.5">
+                      <span className="w-5 h-5 rounded-full bg-moss/15 text-moss text-[10px] font-semibold flex items-center justify-center uppercase shrink-0">
+                        {ownerName[0]}
+                      </span>
+                      <span className="text-xs text-ink/50">Listed by {ownerName}</span>
+                    </div>
+                    <div className="flex flex-wrap gap-2 mt-2">
+                      <span className="chip">₹{listing.rent.toLocaleString("en-IN")}/mo</span>
+                      <span className="chip capitalize">{listing.room_type}</span>
+                      <span className="chip capitalize">{listing.furnishing_status}</span>
+                    </div>
                   </div>
-                </div>
-                {score && (
-                  <CompatibilityMeter
-                    score={score.score}
-                    explanation={score.explanation}
-                    source={score.source}
-                    static
-                    compact
-                  />
-                )}
-              </Link>
-            ))}
+                  {score && (
+                    <CompatibilityMeter
+                      score={score.score}
+                      explanation={score.explanation}
+                      source={score.source}
+                      static
+                      compact
+                    />
+                  )}
+                </Link>
+              );
+            })}
           </div>
         )}
       </div>
